@@ -1,5 +1,5 @@
 package = "kong-plugin-redis-auth"
-version = "0.1.0"
+version = "0.1.0-1"
 
 source = {
   url = "git://github.com/jooonwood/kong-plugin-redis-auth",
