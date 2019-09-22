@@ -2,7 +2,7 @@ local typedefs = require "kong.db.schema.typedefs"
 
 
 return {
-  name = "redis-auth",
+  name = "redisauth",
   fields = {
     { consumer = typedefs.no_consumer },
     { run_on = typedefs.run_on_first },
