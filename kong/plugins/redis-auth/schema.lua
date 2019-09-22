@@ -22,7 +22,7 @@ return {
           { run_on_preflight = { type = "boolean", default = true }, },
           { redis_host = typedefs.host({ required = true, default = "localhost" }), },
           { redis_port = typedefs.port({ required = true, default = 6379 }), },
-          { redis_key_prefix = { type = "string", default = "" }, },
+          { redis_key_prefix = { type = "string", default = "redis-auth:" }, },
           { consumer_keys = { 
               type = "array", elements = { type = "string" }, default = { "id" ,"username" ,"custom_id" }
           }, },
