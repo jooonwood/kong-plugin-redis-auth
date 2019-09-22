@@ -1,4 +1,6 @@
 local constants = require "kong.constants"
+local cjson = require "cjson.safe"
+local redis = require "resty.redis"
 
 
 local kong = kong
@@ -8,72 +10,52 @@ local type = type
 local _realm = 'Key realm="' .. _KONG._NAME .. '"'
 
 
-local KeyAuthHandler = {}
+local RedisAuthHandler = {}
 
 
-KeyAuthHandler.PRIORITY = 1003
-KeyAuthHandler.VERSION = "2.0.0"
+RedisAuthHandler.PRIORITY = 1003
+RedisAuthHandler.VERSION = "0.1.0"
 
 
-local function load_credential(key)
-  local cred, err = kong.db.keyauth_credentials:select_by_key(key)
-  if not cred then
-    return nil, err
+local function load_consumer(redis_host, redis_port, key)
+  local red = redis:new()
+  local ok_con, err_con = red:connect(redis_host, redis_port)
+
+  if not ok_con then
+    kong.log("failed to connect redis", err_con)  
+    return nil, { status = 401, message = "failed to connect redis" }
   end
-  return cred
-end
 
-
-local function load_consumer(consumer_id, anonymous)
-  local result, err = kong.db.consumers:select({ id = consumer_id })
+  local result, err = red:get(key)
   if not result then
-    if anonymous and not err then
-      err = 'anonymous consumer "' .. consumer_id .. '" not found'
-    end
-
-    return nil, err
+    kong.log("failed to get key: ", err)  
+    return nil, { status = 401, message = "failed to get key" }
   end
 
-  return result
+  if result == ngx.null then
+    return nil, { status = 401, message = "not found key" }
+  end
+
+  local ok_pool, err_pool = red:set_keepalive(10000, 100)
+  if not ok_pool then
+    kong.log("failed to set keepalive: ", err_pool)  
+    return nil, { status = 401, message = "failed to set keepalive" }
+  end
+
+  return result  
 end
 
 
-local function set_consumer(consumer, credential)
+local function set_consumer(consumer, consumer_keys)
   local set_header = kong.service.request.set_header
   local clear_header = kong.service.request.clear_header
-
-  if consumer and consumer.id then
-    set_header(constants.HEADERS.CONSUMER_ID, consumer.id)
-  else
-    clear_header(constants.HEADERS.CONSUMER_ID)
-  end
-
-  if consumer and consumer.custom_id then
-    set_header(constants.HEADERS.CONSUMER_CUSTOM_ID, consumer.custom_id)
-  else
-    clear_header(constants.HEADERS.CONSUMER_CUSTOM_ID)
-  end
-
-  if consumer and consumer.username then
-    set_header(constants.HEADERS.CONSUMER_USERNAME, consumer.username)
-  else
-    clear_header(constants.HEADERS.CONSUMER_USERNAME)
-  end
-
-  kong.client.authenticate(consumer, credential)
-
-  if credential then
-    if credential.username then
-      set_header(constants.HEADERS.CREDENTIAL_USERNAME, credential.username)
+  
+  for i,v in ipairs(consumer_keys) do
+    if consumer and consumer[v] then
+      set_header('X-Consumer-'..v, consumer[v])
     else
-      clear_header(constants.HEADERS.CREDENTIAL_USERNAME)
+      clear_header('X-Consumer-'..v)
     end
-
-    clear_header(constants.HEADERS.ANONYMOUS)
-
-  else
-    clear_header(constants.HEADERS.CREDENTIAL_USERNAME)
-    set_header(constants.HEADERS.ANONYMOUS, true)
   end
 end
 
@@ -142,44 +124,19 @@ local function do_authentication(conf)
     return nil, { status = 401, message = "No API key found in request" }
   end
 
-  -- retrieve our consumer linked to this API key
-
-  local cache = kong.cache
-
-  local credential_cache_key = kong.db.keyauth_credentials:cache_key(key)
-  local credential, err = cache:get(credential_cache_key, nil, load_credential,
-                                    key)
-  if err then
-    kong.log.err(err)
-    return kong.response.exit(500, "An unexpected error occurred")
+  local consumer, err = load_consumer(conf.redis_host,conf.redis_port,conf.redis_key_prefix .. key)
+  if not consumer then
+    return nil, { status = 401, message = "API key error" }
   end
 
-  -- no credential in DB, for this key, it is invalid, HTTP 401
-  if not credential then
-    return nil, { status = 401, message = "Invalid authentication credentials" }
-  end
-
-  -----------------------------------------
-  -- Success, this request is authenticated
-  -----------------------------------------
-
-  -- retrieve the consumer linked to this API key, to set appropriate headers
-  local consumer_cache_key, consumer
-  consumer_cache_key = kong.db.consumers:cache_key(credential.consumer.id)
-  consumer, err      = cache:get(consumer_cache_key, nil, load_consumer,
-                                 credential.consumer.id)
-  if err then
-    kong.log.err(err)
-    return nil, { status = 500, message = "An unexpected error occurred" }
-  end
-
-  set_consumer(consumer, credential)
+  set_consumer(cjson.decode(consumer),conf.consumer_keys)
 
   return true
 end
 
 
-function KeyAuthHandler:access(conf)
+function RedisAuthHandler:access(conf)
+  
   -- check if preflight request and whether it should be authenticated
   if not conf.run_on_preflight and kong.request.get_method() == "OPTIONS" then
     return
@@ -193,23 +150,9 @@ function KeyAuthHandler:access(conf)
 
   local ok, err = do_authentication(conf)
   if not ok then
-    if conf.anonymous then
-      -- get anonymous user
-      local consumer_cache_key = kong.db.consumers:cache_key(conf.anonymous)
-      local consumer, err = kong.cache:get(consumer_cache_key, nil,
-                                           load_consumer, conf.anonymous, true)
-      if err then
-        kong.log.err(err)
-        return kong.response.exit(500, { message = "An unexpected error occurred" })
-      end
-
-      set_consumer(consumer, nil)
-
-    else
-      return kong.response.exit(err.status, { message = err.message }, err.headers)
-    end
+    return kong.response.exit(err.status, { message = err.message }, err.headers)
   end
 end
 
 
-return KeyAuthHandler
+return RedisAuthHandler
