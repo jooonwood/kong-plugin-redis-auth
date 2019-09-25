@@ -1,6 +1,7 @@
 local constants = require "kong.constants"
 local cjson = require "cjson.safe"
 local redis = require "resty.redis"
+local ck = require "resty.cookie"
 
 
 local kong = kong
@@ -68,6 +69,7 @@ local function do_authentication(conf)
 
   local headers = kong.request.get_headers()
   local query = kong.request.get_query()
+  local cookies = ck:new()
   local key
   local body
 
@@ -89,6 +91,11 @@ local function do_authentication(conf)
     if not v then
       -- search in querystring
       v = query[name]
+    end
+
+    -- search in cookie
+    if not v then
+      v = cookies:get(name)
     end
 
     -- search the body, if we asked to
