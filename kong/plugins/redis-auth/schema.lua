@@ -17,7 +17,7 @@ return {
               default = { "apikey" },
           }, },
           { hide_credentials = { type = "boolean", default = false }, },
-          { anonymous = { type = "string", uuid = true, legacy = true }, },
+          { anonymous = { type = "boolean", default = false }, },
           { key_in_body = { type = "boolean", default = false }, },
           { run_on_preflight = { type = "boolean", default = true }, },
           { redis_host = typedefs.host({ required = true, default = "localhost" }), },

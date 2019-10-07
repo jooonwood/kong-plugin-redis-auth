@@ -1,9 +1,9 @@
 package = "kong-plugin-redis-auth"
-version = "0.1.1-1"
+version = "0.1.2-1"
 
 source = {
-  url = "https://github.com/jooonwood/kong-plugin-redis-auth/archive/0.1.1.tar.gz",
-  dir = "kong-plugin-redis-auth-0.1.1"
+  url = "https://github.com/jooonwood/kong-plugin-redis-auth/archive/0.1.2.tar.gz",
+  dir = "kong-plugin-redis-auth-0.1.2"
 }
 
 supported_platforms = {"linux", "macosx"}

@@ -149,7 +149,7 @@ function RedisAuthHandler:access(conf)
     return
   end
 
-  if conf.anonymous and kong.client.get_credential() then
+  if conf.anonymous then
     -- we're already authenticated, and we're configured for using anonymous,
     -- hence we're in a logical OR between auth methods and we're already done.
     return
