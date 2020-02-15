@@ -18,6 +18,10 @@ return {
           }, },
           { hide_credentials = { type = "boolean", default = false }, },
           { anonymous = { type = "boolean", default = false }, },
+          { anonymous_consumer = { type = "string" }, },
+          { anonymous_paths = { 
+            type = "array", elements = { type = "string" }, default = { "public" } 
+          }, },
           { key_in_body = { type = "boolean", default = false }, },
           { run_on_preflight = { type = "boolean", default = true }, },
           { redis_host = typedefs.host({ required = true, default = "localhost" }), },

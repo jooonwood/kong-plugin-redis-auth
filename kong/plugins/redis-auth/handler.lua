@@ -149,7 +149,7 @@ function RedisAuthHandler:access(conf)
     return
   end
 
-  if conf.anonymous then
+  if conf.anonymous and kong.client.get_credential() then
     -- we're already authenticated, and we're configured for using anonymous,
     -- hence we're in a logical OR between auth methods and we're already done.
     return
@@ -157,6 +157,17 @@ function RedisAuthHandler:access(conf)
 
   local ok, err = do_authentication(conf)
   if not ok then
+    if conf.anonymous then
+      local request_path = kong.request.get_path()..'/'
+      for i, v in ipairs(conf.anonymous_paths) do
+        local match_path = v..'/'
+        if string.sub(request_path,1,string.len(match_path)) == match_path then
+          -- get anonymous user
+          set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
+          return
+        end
+      end
+    end
     return kong.response.exit(err.status, { message = err.message }, err.headers)
   end
 end
