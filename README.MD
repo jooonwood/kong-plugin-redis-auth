@@ -25,7 +25,7 @@ plugins:
     redis_key_prefix: 'redis-auth:'
     consumer_keys:
       - id
-      - empnum
+      - name
     anonymous: true
     anonymous_consumer: '{ "id": 10000, "type": "person", "name": "anonymous" }'
     anonymous_paths:
@@ -44,7 +44,7 @@ services:
   routes:
   - name: private-route
     paths:
-    - /private/
+    - /private
 
 
 ```
