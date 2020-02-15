@@ -15,35 +15,49 @@ local RedisAuthHandler = {}
 
 
 RedisAuthHandler.PRIORITY = 1003
-RedisAuthHandler.VERSION = "0.1.0"
+RedisAuthHandler.VERSION = "0.1.3"
 
-
-local function load_consumer(redis_host, redis_port, key)
+local function load_redis(conf)
   local red = redis:new()
-  local ok_con, err_con = red:connect(redis_host, redis_port)
+  local ok, err = red:connect(conf.redis_host, conf.redis_port)
 
-  if not ok_con then
-    kong.log("failed to connect redis", err_con)  
-    return nil, { status = 401, message = "failed to connect redis" }
+  if err then
+    return nil, err
   end
 
-  local result, err = red:get(key)
-  if not result then
+  if conf.redis_password and conf.redis_password ~= "" then
+    local ok, err = red:auth(conf.redis_password)
+    if err then
+      return nil, err
+    end
+  end
+  
+  return red
+
+end
+
+local function load_consumer(conf, key)
+  local red, err = load_redis(conf)
+
+  if err then
+    kong.log("failed to connect redis", err)
+    return nil, err
+  end
+
+  local value, err = red:get(conf.redis_key_prefix .. key)
+  if err then
     kong.log("failed to get key: ", err)  
-    return nil, { status = 401, message = "failed to get key" }
+    return nil, err
   end
 
-  if result == ngx.null then
+  red:set_keepalive(conf.redis_timeout, conf.redis_pool)
+  
+  if value == ngx.null then
     return nil, { status = 401, message = "not found key" }
   end
 
-  local ok_pool, err_pool = red:set_keepalive(10000, 100)
-  if not ok_pool then
-    kong.log("failed to set keepalive: ", err_pool)  
-    return nil, { status = 401, message = "failed to set keepalive" }
-  end
+  return value
 
-  return result  
 end
 
 
@@ -131,9 +145,9 @@ local function do_authentication(conf)
     return nil, { status = 401, message = "No API key found in request" }
   end
 
-  local consumer, err = load_consumer(conf.redis_host,conf.redis_port,conf.redis_key_prefix .. key)
-  if not consumer then
-    return nil, { status = 401, message = "API key error" }
+  local consumer, err = load_consumer(conf, key)
+  if err then
+    return nil, err
   end
 
   set_consumer(cjson.decode(consumer),conf.consumer_keys)
