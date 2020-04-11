@@ -23,7 +23,9 @@ for _, strategy in helpers.each_strategy() do
       bp.plugins:insert {
         name = PLUGIN_NAME,
         route = { id = route1.id },
-        config = {},
+        config = {
+          redis_host = redis_host
+        },
       }
 
       -- start kong
