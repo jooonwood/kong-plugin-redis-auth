@@ -62,7 +62,7 @@ for _, strategy in helpers.each_strategy() do
     end)
 
     describe("request", function()
-      it("request error apikey", function()
+      it("request unauthorized apikey", function()
         local r = client:get("/request", {
           headers = {
             host = "test1.com"
@@ -75,10 +75,6 @@ for _, strategy in helpers.each_strategy() do
         assert.response(r).has.status(401)
       end)
     end)
-
-    unauthorized
-
-
 
     describe("response", function()
       it("gets a 'bye-world' header", function()
