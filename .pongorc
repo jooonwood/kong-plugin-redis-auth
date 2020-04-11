@@ -1,4 +1,3 @@
---no-postgres
+--postgres
 --no-cassandra
 --redis
-
