@@ -50,20 +50,33 @@ for _, strategy in helpers.each_strategy() do
 
 
     describe("request", function()
-      it("gets a 'hello-world' header", function()
+      it("request no apikey", function()
         local r = client:get("/request", {
           headers = {
             host = "test1.com"
           }
         })
         -- validate that the request succeeded, response status 200
-        assert.response(r).has.status(200)
-        -- now check the request (as echoed by mockbin) to have the header
-        local header_value = assert.request(r).has.header("hello-world")
-        -- validate the value of that header
-        assert.equal("this is on a request", header_value)
+        assert.response(r).has.status(401)
       end)
     end)
+
+    describe("request", function()
+      it("request error apikey", function()
+        local r = client:get("/request", {
+          headers = {
+            host = "test1.com"
+          },
+          query = {
+            ["apikey"] = "error-apikey"
+          }
+        })
+        -- validate that the request succeeded, response status 200
+        assert.response(r).has.status(401)
+      end)
+    end)
+
+    unauthorized
 
 
 
