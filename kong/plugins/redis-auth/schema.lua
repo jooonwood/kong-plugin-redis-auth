@@ -24,7 +24,7 @@ return {
           }, },
           { key_in_body = { type = "boolean", default = false }, },
           { run_on_preflight = { type = "boolean", default = true }, },
-          { redis_host = typedefs.host({ required = true, default = "redis" }), },
+          { redis_host = typedefs.host({ required = true, default = "127.0.0.1" }), },
           { redis_port = typedefs.port({ required = true, default = 6379 }), },
           { redis_password = { type = "string" }, },
           { redis_key_prefix = { type = "string", default = "redis-auth:" }, },
