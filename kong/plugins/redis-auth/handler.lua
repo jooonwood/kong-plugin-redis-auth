@@ -1,4 +1,3 @@
-local constants = require "kong.constants"
 local cjson = require "cjson.safe"
 local redis = require "resty.redis"
 local ck = require "resty.cookie"
@@ -19,14 +18,14 @@ RedisAuthHandler.VERSION = "0.1.3"
 
 local function load_redis(conf)
   local red = redis:new()
-  local ok, err = red:connect(conf.redis_host, conf.redis_port)
+  local _, err = red:connect(conf.redis_host, conf.redis_port)
 
   if err then
     return nil, err
   end
 
   if conf.redis_password and conf.redis_password ~= "" then
-    local ok, err = red:auth(conf.redis_password)
+    local _, err = red:auth(conf.redis_password)
     if err then
       return nil, err
     end
