@@ -68,7 +68,7 @@ for _, strategy in helpers.each_strategy() do
             host = "test1.com"
           },
           query = {
-            ["apikey"] = "error-apikey"
+            apikey = "error"
           }
         })
         -- validate that the request succeeded, response status 200
