@@ -87,6 +87,9 @@ for _, strategy in helpers.each_strategy() do
         local r = client:get("/public", {
           headers = {
             host = "test1.com"
+          },
+          query = {
+            apikey = "error"
           }
         })
         -- validate that the request succeeded, response status 200
