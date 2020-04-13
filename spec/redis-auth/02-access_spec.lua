@@ -24,7 +24,9 @@ for _, strategy in helpers.each_strategy() do
         name = PLUGIN_NAME,
         route = { id = route1.id },
         config = {
-          redis_host = redis_host
+          redis_host = redis_host,
+          anonymous = true,
+          anonymous_consumer = "{ id: 2000, username: 'hello', custom_id: 1000 }"
         },
       }
 
@@ -81,8 +83,8 @@ for _, strategy in helpers.each_strategy() do
     end)
 
     describe("response", function()
-      it("gets a 'bye-world' header", function()
-        local r = client:get("/request", {
+      it("gets a 'anonymous' header", function()
+        local r = client:get("/public", {
           headers = {
             host = "test1.com"
           }
@@ -90,7 +92,7 @@ for _, strategy in helpers.each_strategy() do
         -- validate that the request succeeded, response status 200
         assert.response(r).has.status(200)
         -- now check the response to have the header
-        local header_value = assert.response(r).has.header("bye-world")
+        local header_value = assert.response(r).has.header("id")
         -- validate the value of that header
         assert.equal("this is on the response", header_value)
       end)
