@@ -141,7 +141,7 @@ local function do_authentication(conf)
   -- this request is missing an API key, HTTP 401
   if not key or key == "" then
     kong.response.set_header("WWW-Authenticate", _realm)
-    return nil, { status = 401, message = "No API key found in request" }
+    return nil, { status = 401, message = "No API key found in request test" }
   end
 
   local consumer, err = load_consumer(conf, key)
