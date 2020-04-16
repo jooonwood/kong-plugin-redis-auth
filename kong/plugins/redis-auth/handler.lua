@@ -168,7 +168,7 @@ function RedisAuthHandler:access(conf)
     return
   end
 
-  local ok, err = do_authentication(conf)
+  --local ok, err = do_authentication(conf)
   if conf.anonymous then
       local request_path = kong.request.get_path()..'/'
       for i, v in ipairs(conf.anonymous_paths) do
