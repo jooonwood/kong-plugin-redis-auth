@@ -169,8 +169,6 @@ function RedisAuthHandler:access(conf)
   end
 
   local ok, err = do_authentication(conf)
-  
-  return
 
   if err then
     if conf.anonymous then
@@ -184,6 +182,7 @@ function RedisAuthHandler:access(conf)
         end
       end
     end
+    set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
     return kong.response.exit(err.status, { message = err.message }, err.headers)
   end
 end
