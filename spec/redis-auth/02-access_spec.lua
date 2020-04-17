@@ -103,9 +103,9 @@ for _, strategy in helpers.each_strategy() do
             host = "test1.com"
           }
         })
-        print(res)
+
         local body = cjson.decode(assert.res_status(200, res))
-        assert.equal('2000', body.headers["X-Consumer-id"])
+        assert.equal('2000', body.headers["x-consumer-id"])
       end)
     end)
 
