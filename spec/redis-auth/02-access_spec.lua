@@ -105,7 +105,7 @@ for _, strategy in helpers.each_strategy() do
         -- validate that the request succeeded, response status 200
         assert.response(r).has.status(200)
         -- now check the response to have the header
-        local header_value = assert.response(r).has.header("id")
+        local header_value = assert.response(r).has.header("X-Consumer-id")
         -- validate the value of that header
         assert.equal("this is on the response", header_value)
       end)
