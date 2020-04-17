@@ -162,7 +162,7 @@ local function is_public(anonymous_paths)
       return true
     end
   end
-  return true
+  return nil
 end
 
 function RedisAuthHandler:access(conf)
