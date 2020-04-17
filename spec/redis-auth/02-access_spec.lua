@@ -103,8 +103,7 @@ for _, strategy in helpers.each_strategy() do
             host = "test1.com"
           }
         })
-
-        assert.response(res).has.status(200)
+        assert.request(res).has.header("x-consumer-id")
         assert.response(res).has.header("x-consumer-id")
       end)
     end)
