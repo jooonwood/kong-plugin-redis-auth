@@ -63,9 +63,7 @@ end
 local function set_consumer(consumer, consumer_keys)
   local set_header = kong.service.request.set_header
   local clear_header = kong.service.request.clear_header
-  for i,v in ipairs(consumer) do
-    set_header('X-Consumer-log-'..i, v)
-  end
+  set_header('X-Consumer-log', consumer)
   for i,v in ipairs(consumer_keys) do
     set_header('X-Consumer-test-'..i, v)
     if consumer and consumer[v] then
