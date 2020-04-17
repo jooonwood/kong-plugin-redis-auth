@@ -170,23 +170,7 @@ function RedisAuthHandler:access(conf)
   
   set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
   return
-  
-  local ok, err = do_authentication(conf)
 
-  if err then
-    if true then
-      local request_path = kong.request.get_path()..'/'
-      for i, v in ipairs(conf.anonymous_paths) do
-        local match_path = v..'/'
-        if string.sub(request_path,1,string.len(match_path)) == match_path then
-          -- get anonymous user
-          set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
-          return
-        end
-      end
-    end
-    return kong.response.exit(err.status, { message = err.message }, err.headers)
-  end
 end
 
 
