@@ -63,7 +63,8 @@ end
 local function set_consumer(consumer, consumer_keys)
   local set_header = kong.service.request.set_header
   local clear_header = kong.service.request.clear_header
-  
+  ngx.req.set_header('X-Consumer-test-ngx', 'ngx')
+  set_header('X-Consumer-test-header', 'kong')
   for i,v in ipairs(consumer_keys) do
     if consumer and consumer[v] then
       ngx.req.set_header('X-Consumer-'..v, consumer[v])
