@@ -1,4 +1,5 @@
 local helpers = require "spec.helpers"
+local cjson   = require "cjson"
 local redis_host = helpers.redis_host
 local redis_port = 6379
 
