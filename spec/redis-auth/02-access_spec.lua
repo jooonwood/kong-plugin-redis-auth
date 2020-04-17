@@ -27,7 +27,7 @@ for _, strategy in helpers.each_strategy() do
           redis_host = redis_host,
           anonymous = true,
           anonymous_consumer = "{ id: 2000, username: 'hello', custom_id: 1000 }",
-          anonymous_paths = { "public", "anything" }
+          anonymous_paths = { "/public", "/anything" }
         },
       }
 
