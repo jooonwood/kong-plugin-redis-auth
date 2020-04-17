@@ -26,7 +26,8 @@ for _, strategy in helpers.each_strategy() do
         config = {
           redis_host = redis_host,
           anonymous = true,
-          anonymous_consumer = "{ id: 2000, username: 'hello', custom_id: 1000 }"
+          anonymous_consumer = "{ id: 2000, username: 'hello', custom_id: 1000 }",
+          anonymous_paths = { "public", "anything" }
         },
       }
 
@@ -84,7 +85,7 @@ for _, strategy in helpers.each_strategy() do
       
     describe("request", function()
       it("request public path", function()
-        local r = client:get("/public/request", {
+        local r = client:get("/anything", {
           headers = {
             host = "test1.com"
           }
