@@ -155,13 +155,12 @@ local function do_authentication(conf)
 end
 
 local function is_public(anonymous_paths)
-  local request_path = kong.request.get_path()..'/'
+  local request_path = kong.request.get_path()
   for i, v in ipairs(anonymous_paths) do
     local match_path = v..'/'
     if string.sub(request_path,1,string.len(match_path)) == match_path then
       return true
     end
-    return true
   end
   return nil
 end
