@@ -97,7 +97,7 @@ for _, strategy in helpers.each_strategy() do
 
     describe("response", function()
       it("gets a 'anonymous' header", function()
-        local r = client:get("/public/helloworld", {
+        local r = client:get("/anything", {
           headers = {
             host = "test1.com"
           }
