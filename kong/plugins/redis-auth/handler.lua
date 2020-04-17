@@ -66,6 +66,7 @@ local function set_consumer(consumer, consumer_keys)
   
   for i,v in ipairs(consumer_keys) do
     if consumer and consumer[v] then
+      ngx.req.set_header('X-Consumer-'..v, consumer[v])
       set_header('X-Consumer-'..v, consumer[v])
     else
       clear_header('X-Consumer-'..v)
