@@ -154,6 +154,16 @@ local function do_authentication(conf)
   return true
 end
 
+local function is_public(anonymous_paths)
+  local request_path = kong.request.get_path()..'/'
+  for i, v in ipairs(anonymous_paths) do
+    local match_path = v..'/'
+    if string.sub(request_path,1,string.len(match_path)) == match_path then
+      return true
+     end
+  end
+  return nil
+end
 
 function RedisAuthHandler:access(conf)
   
@@ -169,20 +179,12 @@ function RedisAuthHandler:access(conf)
   end
 
   local ok, err = do_authentication(conf)
-  if err then
-    if conf.anonymous then
-      local request_path = kong.request.get_path()..'/'
-      for i, v in ipairs(conf.anonymous_paths) do
-        local match_path = v..'/'
-        if string.sub(request_path,1,string.len(match_path)) == match_path then
-          -- get anonymous user
-          set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
-          return
-        end
-      end
-    end
-    return kong.response.exit(err.status, { message = err.message }, err.headers)
+  if err  and conf.anonymous and is_public(conf.anonymous_paths) then
+    set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
+    return
   end
+  return kong.response.exit(err.status, { message = err.message }, err.headers)
+  
 end
 
 
