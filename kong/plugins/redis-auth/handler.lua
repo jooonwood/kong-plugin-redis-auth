@@ -141,7 +141,7 @@ local function do_authentication(conf)
   -- this request is missing an API key, HTTP 401
   if not key or key == "" then
     kong.response.set_header("WWW-Authenticate", _realm)
-    return nil, { status = 401, message = "No API key found in request test" }
+    return nil, { status = 401, message = "No API key found in request" }
   end
 
   local consumer, err = load_consumer(conf, key)
@@ -167,10 +167,22 @@ function RedisAuthHandler:access(conf)
     -- hence we're in a logical OR between auth methods and we're already done.
     return
   end
-  
-  set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
-  return
 
+  local ok, err = do_authentication(conf)
+  if err then
+    if conf.anonymous then
+      local request_path = kong.request.get_path()..'/'
+      for i, v in ipairs(conf.anonymous_paths) do
+        local match_path = v..'/'
+        if string.sub(request_path,1,string.len(match_path)) == match_path then
+          -- get anonymous user
+          set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
+          return
+        end
+      end
+    end
+    return kong.response.exit(err.status, { message = err.message }, err.headers)
+  end
 end
 
 
