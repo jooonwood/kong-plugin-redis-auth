@@ -81,6 +81,18 @@ for _, strategy in helpers.each_strategy() do
         assert.response(r).has.status(401)
       end)
     end)
+      
+    describe("request", function()
+      it("request public path", function()
+        local r = client:get("/public/helloworld", {
+          headers = {
+            host = "test1.com"
+          }
+        })
+        -- validate that the request succeeded, response status 200
+        assert.response(r).has.status(200)
+      end)
+    end)
 
     describe("response", function()
       it("gets a 'anonymous' header", function()
