@@ -104,9 +104,8 @@ for _, strategy in helpers.each_strategy() do
           }
         })
 
-        local body = cjson.decode(assert.res_status(200, res))
-        print(body.headers)
-        assert.equal('2000', body.headers["x-consumer-id"])
+        assert.response(res).has.status(200)
+        assert.request(res).has.header("x-consumer-id")
       end)
     end)
 
