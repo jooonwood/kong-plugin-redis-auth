@@ -84,7 +84,7 @@ for _, strategy in helpers.each_strategy() do
       
     describe("request", function()
       it("request public path", function()
-        local r = client:get("/public/helloworld", {
+        local r = client:get("/public/request", {
           headers = {
             host = "test1.com"
           }
