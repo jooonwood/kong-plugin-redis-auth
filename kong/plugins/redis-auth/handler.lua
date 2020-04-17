@@ -66,6 +66,7 @@ local function set_consumer(consumer, consumer_keys)
   ngx.req.set_header('X-Consumer-test-ngx', 'ngx')
   set_header('X-Consumer-test-header', 'kong')
   for i,v in ipairs(consumer_keys) do
+    set_header('X-Consumer-test-'..v, consumer[v])
     if consumer and consumer[v] then
       ngx.req.set_header('X-Consumer-'..v, consumer[v])
       set_header('X-Consumer-'..v, consumer[v])
