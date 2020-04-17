@@ -167,7 +167,10 @@ function RedisAuthHandler:access(conf)
     -- hence we're in a logical OR between auth methods and we're already done.
     return
   end
-
+  
+  set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
+  return
+  
   local ok, err = do_authentication(conf)
 
   if err then
