@@ -160,7 +160,7 @@ local function is_public(anonymous_paths)
     local match_path = v..'/'
     if string.sub(request_path,1,string.len(match_path)) == match_path then
       return true
-     end
+    end
   end
   return true
 end
