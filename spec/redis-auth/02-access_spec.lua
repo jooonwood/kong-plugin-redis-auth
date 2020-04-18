@@ -104,7 +104,6 @@ for _, strategy in helpers.each_strategy() do
           }
         })
         assert.request(res).has.header("x-consumer-id")
-        assert.response(res).has.header("x-consumer-id")
       end)
     end)
 
