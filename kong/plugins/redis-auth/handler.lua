@@ -180,6 +180,7 @@ function RedisAuthHandler:access(conf)
 
   local ok, err = do_authentication(conf)
   if err  and conf.anonymous and is_public(conf.anonymous_paths) then
+    ngx.req.set_header('x-test', conf.anonymous_consumer)
     set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
     return
   end
