@@ -1,7 +1,6 @@
 local helpers = require "spec.helpers"
-local cjson   = require "cjson"
 local redis_host = helpers.redis_host
-local redis_port = 6379
+
 
 
 local PLUGIN_NAME = "redis-auth"
@@ -25,6 +24,7 @@ for _, strategy in helpers.each_strategy() do
         name = PLUGIN_NAME,
         route = { id = route1.id },
         config = {
+          consumer_keys = { "id", "username" },
           redis_host = redis_host,
           anonymous = true,
           anonymous_consumer = '{ "id":2000, "username":"hello", "custom_id":1000 }',
@@ -96,14 +96,17 @@ for _, strategy in helpers.each_strategy() do
       end)
     end)
 
-    describe("response", function()
+    describe("request", function()
       it("gets a 'anonymous' header", function()
         local res = client:get("/anything", {
           headers = {
             host = "test1.com"
           }
         })
-        assert.request(res).has.header("x-consumer-id")
+        local id = assert.request(res).has.header("x-consumer-id")
+        assert.equal(id, "2000")
+        local username = assert.request(res).has.header("x-consumer-username")
+        assert.equal(username, "hello")
       end)
     end)
 
