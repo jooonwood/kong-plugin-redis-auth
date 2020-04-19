@@ -2,7 +2,6 @@ local helpers = require "spec.helpers"
 local redis_host = helpers.redis_host
 
 
-
 local PLUGIN_NAME = "redis-auth"
 
 
