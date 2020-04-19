@@ -27,7 +27,7 @@ for _, strategy in helpers.each_strategy() do
           redis_host = redis_host,
           anonymous = true,
           anonymous_consumer = '{ "id":2000, "username":"hello", "custom_id":1000 }',
-          anonymous_paths = { "/public", "/anything" }
+          anonymous_paths = { "/delay/1", "/anything" }
         },
       }
 
@@ -84,7 +84,7 @@ for _, strategy in helpers.each_strategy() do
     end)
       
     describe("request", function()
-      it("request public path", function()
+      it("request public path /anything", function()
         local r = client:get("/anything", {
           headers = {
             host = "test1.com"
@@ -92,6 +92,30 @@ for _, strategy in helpers.each_strategy() do
         })
         -- validate that the request succeeded, response status 200
         assert.response(r).has.status(200)
+      end)
+    end)
+
+    describe("request", function()
+      it("request public path /delay/1", function()
+        local r = client:get("/delay/1", {
+          headers = {
+            host = "test1.com"
+          }
+        })
+        -- validate that the request succeeded, response status 200
+        assert.response(r).has.status(200)
+      end)
+    end)
+
+    describe("request", function()
+      it("request unauthorized path /delay/10", function()
+        local r = client:get("/delay/10", {
+          headers = {
+            host = "test1.com"
+          }
+        })
+        -- validate that the request succeeded, response status 200
+        assert.response(r).has.status(401)
       end)
     end)
 
