@@ -17,7 +17,7 @@ describe(PLUGIN_NAME .. ": (schema)", function()
 
   it("accepts distinct request_header and response_header", function()
     local ok, err = validate({
-        request_header = "My-Request-Header",
+        request_header = "x-consumer-id",
         response_header = "Your-Response",
       })
     assert.is_nil(err)
@@ -27,7 +27,7 @@ describe(PLUGIN_NAME .. ": (schema)", function()
 
   it("does not accept identical request_header and response_header", function()
     local ok, err = validate({
-        request_header = "they-are-the-same",
+        request_header = "x-consumer-id",
         response_header = "they-are-the-same",
       })
 
