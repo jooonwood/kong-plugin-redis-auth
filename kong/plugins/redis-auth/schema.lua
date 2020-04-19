@@ -17,7 +17,7 @@ return {
           }, },
           { hide_credentials = { type = "boolean", default = false }, },
           { anonymous = { type = "boolean", default = false }, },
-          { anonymous_consumer = { type = "map" }, },
+          { anonymous_consumer = { type = "array" }, },
           { anonymous_paths = { 
             type = "array", elements = { type = "string" }, default = { "public" } 
           }, },
