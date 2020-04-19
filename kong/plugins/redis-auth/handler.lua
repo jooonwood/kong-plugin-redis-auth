@@ -177,13 +177,13 @@ function RedisAuthHandler:access(conf)
     -- hence we're in a logical OR between auth methods and we're already done.
     return
   end
-  ngx.req.set_header('x-test', conf.anonymous_consumer)
-  ngx.req.set_header('x-test-one', 'yes')
+
   local ok, err = do_authentication(conf)
   if err  and conf.anonymous and is_public(conf.anonymous_paths) then
     set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
     return
   end
+  
   return kong.response.exit(err.status, { message = err.message }, err.headers)
   
 end
