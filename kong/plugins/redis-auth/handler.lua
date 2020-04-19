@@ -5,7 +5,6 @@ local ck = require "resty.cookie"
 
 local kong = kong
 local type = type
-local len = string.len
 
 local _realm = 'Key realm="' .. _KONG._NAME .. '"'
 
@@ -158,7 +157,7 @@ local function is_public(anonymous_paths)
   local request_path = kong.request.get_path()..'/'
   for i, v in ipairs(anonymous_paths) do
     local match_path = v..'/'
-    if string.sub(request_path,1,len(match_path)) == match_path then
+    if string.sub(request_path,1,#match_path) == match_path then
       return true
     end
   end
