@@ -179,7 +179,7 @@ function RedisAuthHandler:access(conf)
 
   local _, err = do_authentication(conf)
   if err  and conf.anonymous and is_public(conf.anonymous_paths) then
-    set_consumer(conf.anonymous_consumer, conf.consumer_keys)
+    set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
     return
   end
 
