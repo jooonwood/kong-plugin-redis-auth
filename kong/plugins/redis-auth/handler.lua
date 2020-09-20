@@ -1,4 +1,3 @@
-local constants = require "kong.constants"
 local cjson = require "cjson.safe"
 local redis = require "resty.redis"
 local ck = require "resty.cookie"
@@ -6,7 +5,6 @@ local ck = require "resty.cookie"
 
 local kong = kong
 local type = type
-
 
 local _realm = 'Key realm="' .. _KONG._NAME .. '"'
 
@@ -19,14 +17,14 @@ RedisAuthHandler.VERSION = "0.1.3"
 
 local function load_redis(conf)
   local red = redis:new()
-  local ok, err = red:connect(conf.redis_host, conf.redis_port)
+  local _, err = red:connect(conf.redis_host, conf.redis_port)
 
   if err then
     return nil, err
   end
 
   if conf.redis_password and conf.redis_password ~= "" then
-    local ok, err = red:auth(conf.redis_password)
+    local _, err = red:auth(conf.redis_password)
     if err then
       return nil, err
     end
@@ -155,6 +153,16 @@ local function do_authentication(conf)
   return true
 end
 
+local function is_public(anonymous_paths)
+  local request_path = kong.request.get_path()..'/'
+  for i, v in ipairs(anonymous_paths) do
+    local match_path = v..'/'
+    if string.sub(request_path,1,#match_path) == match_path then
+      return true
+    end
+  end
+  return nil
+end
 
 function RedisAuthHandler:access(conf)
   
@@ -169,21 +177,14 @@ function RedisAuthHandler:access(conf)
     return
   end
 
-  local ok, err = do_authentication(conf)
-  if not ok then
-    if conf.anonymous then
-      local request_path = kong.request.get_path()..'/'
-      for i, v in ipairs(conf.anonymous_paths) do
-        local match_path = v..'/'
-        if string.sub(request_path,1,string.len(match_path)) == match_path then
-          -- get anonymous user
-          set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
-          return
-        end
-      end
-    end
-    return kong.response.exit(err.status, { message = err.message }, err.headers)
+  local _, err = do_authentication(conf)
+  if err  and conf.anonymous and is_public(conf.anonymous_paths) then
+    set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
+    return
   end
+
+  return kong.response.exit(err.status, { message = err.message }, err.headers)
+  
 end
 
 
