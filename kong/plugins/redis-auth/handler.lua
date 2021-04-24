@@ -1,6 +1,7 @@
 local cjson = require "cjson.safe"
 local redis = require "resty.redis"
 local ck = require "resty.cookie"
+local utils = require "resty.core.utils"
 
 
 local kong = kong
@@ -42,19 +43,20 @@ local function load_consumer(conf, key)
     return nil, err
   end
 
-  local value, err = red:get(conf.redis_key_prefix .. key)
-  if err then
-    kong.log("failed to get key: ", err)  
-    return nil, err
-  end
-
-  red:set_keepalive(conf.redis_timeout, conf.redis_pool)
-  
-  if value == ngx.null then
+  local uid = red:zscore(conf.redis_key_prefix..'sessions', key)
+  if uid == ngx.null then
+    red:set_keepalive(conf.redis_timeout, conf.redis_pool)
     return nil, { status = 401, message = "not found key" }
   end
 
-  return value
+  local user = red:get(conf.redis_key_prefix ..'users:'.. uid)
+  if user == ngx.null then
+    red:set_keepalive(conf.redis_timeout, conf.redis_pool)
+    return nil, { status = 401, message = "not found user" }
+  end
+
+  red:set_keepalive(conf.redis_timeout, conf.redis_pool)
+  return user
 
 end
 
@@ -65,9 +67,9 @@ local function set_consumer(consumer, consumer_keys)
   
   for i,v in ipairs(consumer_keys) do
     if consumer and consumer[v] then
-      set_header('X-Consumer-'..v, consumer[v])
+      set_header('X-Consumer-'..utils.str_replace_char(v, "_", "-"), consumer[v])
     else
-      clear_header('X-Consumer-'..v)
+      clear_header('X-Consumer-'..utils.str_replace_char(v, "_", "-"))
     end
   end
 end
@@ -178,13 +180,18 @@ function RedisAuthHandler:access(conf)
   end
 
   local _, err = do_authentication(conf)
-  if err  and conf.anonymous and is_public(conf.anonymous_paths) then
+
+  if not err then
+    return
+  end
+
+  if conf.anonymous and is_public(conf.anonymous_paths) then
     set_consumer(cjson.decode(conf.anonymous_consumer), conf.consumer_keys)
     return
   end
 
   return kong.response.exit(err.status, { message = err.message }, err.headers)
-  
+
 end
 
 
