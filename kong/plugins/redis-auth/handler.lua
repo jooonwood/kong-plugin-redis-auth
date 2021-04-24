@@ -1,6 +1,7 @@
 local cjson = require "cjson.safe"
 local redis = require "resty.redis"
 local ck = require "resty.cookie"
+local utils = require "resty.core.utils"
 
 
 local kong = kong
@@ -66,9 +67,9 @@ local function set_consumer(consumer, consumer_keys)
   
   for i,v in ipairs(consumer_keys) do
     if consumer and consumer[v] then
-      set_header('X-Consumer-'..v, consumer[v])
+      set_header('X-Consumer-'..utils.str_replace_char(v, "_", "-"), consumer[v])
     else
-      clear_header('X-Consumer-'..v)
+      clear_header('X-Consumer-'..utils.str_replace_char(v, "_", "-"))
     end
   end
 end
