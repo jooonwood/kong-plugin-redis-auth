@@ -3,6 +3,8 @@ dist: bionic
 jobs:
   include:
   # to add Kong Enterprise releases, check the Pongo docs
+  - name: Kong CE 2.4.x
+    env: KONG_VERSION=2.4.x
   - name: Kong CE 2.0.x
     env: KONG_VERSION=2.0.x
   - name: Kong CE 1.5.x
