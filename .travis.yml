@@ -12,7 +12,7 @@ jobs:
 
 install:
 - git clone --single-branch https://github.com/Kong/kong-pongo ../kong-pongo
-- "../kong-pongo/pongo.sh up"
+- "REDIS=6.2 ../kong-pongo/pongo.sh up --redis"
 - "../kong-pongo/pongo.sh build"
 
 script:
