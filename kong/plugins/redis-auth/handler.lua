@@ -62,7 +62,7 @@ local function load_consumer(conf, key)
       red:init_pipeline()
       red:sismember(conf.redis_key_prefix ..'services:'.. service.name, 'public')
       red:sismember(conf.redis_key_prefix ..'services:'.. service.name, uid)
-      local service_res, service_err = red:commit_pipeline()
+      local service_res = red:commit_pipeline()
       local service_auth = 0
       for k, v in ipairs(service_res) do
         service_auth = service_auth + v
