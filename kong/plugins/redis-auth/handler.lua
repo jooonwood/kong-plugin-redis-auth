@@ -59,9 +59,13 @@ local function load_consumer(conf, key)
   if service and service.name then
     local service_exists = red:exists(conf.redis_key_prefix ..'services:'.. service.name)
     if service_exists then
-      local service_auth_everyone, service_auth_user = red:smismember(conf.redis_key_prefix ..'services:'.. service.name, 'public', uid)
-      if service_auth_everyone == ngx.null and service_auth_user == ngx.null then
-        --return nil, { status = 401, message = "access failed"..service.name }
+      local service_res = red:smismember(conf.redis_key_prefix ..'services:'.. service.name, 'public', uid)
+      local service_auth = 0
+      for k, v in ipairs(service_res) do
+        service_auth = service_auth + v
+      end
+      if service_auth == 0 then
+        red:set_keepalive(conf.redis_timeout, conf.redis_pool)
         return nil, { status = 403, message = "access failed" }
       end
     end
