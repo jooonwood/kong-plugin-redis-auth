@@ -50,7 +50,7 @@ for _, strategy in helpers.each_strategy() do
       }
 
       bp.routes:insert {
-        paths = { "/needauth" },
+        paths = { "/delay/5" },
         service   = bp.services:insert {
           name = "needauth",
         },
@@ -166,7 +166,7 @@ for _, strategy in helpers.each_strategy() do
 
     describe("request", function()
       it("request needauth path", function()
-        local r = client:get("/needauth?apikey=apikey-needauth", {
+        local r = client:get("/delay/5?apikey=apikey-needauth", {
           headers = {
             host = "test1.com"
           }
