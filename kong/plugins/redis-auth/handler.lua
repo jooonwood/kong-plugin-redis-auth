@@ -61,7 +61,7 @@ local function load_consumer(conf, key)
     if service_exists then
       local service_auth = red:smismember(conf.redis_key_prefix ..'services:'.. service.name, 'public', uid)
       local service_auth_ok = 0
-      for k,v in pairs(service_auth) do
+      for k,v in ipairs(service_auth) do
         service_auth_ok = service_auth_ok + v
       end
       if service_auth_ok == 0 then
