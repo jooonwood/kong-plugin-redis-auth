@@ -40,7 +40,7 @@ for _, strategy in helpers.each_strategy() do
         }),
         config = {
           consumer_keys = { "id", "username" },
-          redis_host = redis_host,
+          redis_host = REDIS_HOST,
           anonymous = true,
           anonymous_consumer = '{ "id":2000, "username":"hello", "custom_id":1000 }',
           anonymous_paths = { "/delay/1", "/anything" }
