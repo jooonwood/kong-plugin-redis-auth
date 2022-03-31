@@ -54,7 +54,9 @@ for _, strategy in helpers.each_strategy() do
         route = bp.routes:insert({
           hosts = { "test-service-auth.com" },
           service   = bp.services:insert {
-            path = "/request",
+            protocol = "http",
+            host = "test.com",
+            port = 15555,
             name = "needauth",
           },
         }),
