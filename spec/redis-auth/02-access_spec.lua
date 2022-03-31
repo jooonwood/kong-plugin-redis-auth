@@ -52,7 +52,7 @@ for _, strategy in helpers.each_strategy() do
       bp.plugins:insert {
         name = PLUGIN_NAME,
         route = bp.routes:insert({
-          hosts = { "test2.com" },
+          hosts = { "mock_upstream" },
           service   = bp.services:insert {
             name = "needauth",
           },
@@ -175,7 +175,7 @@ for _, strategy in helpers.each_strategy() do
       it("request needauth path", function()
         local r = client:get("/request", {
           headers = {
-            host = "test2.com"
+            host = "mock_upstream"
           },
           query = {
             apikey = "apikey-needauth"
