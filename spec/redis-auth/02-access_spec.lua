@@ -49,10 +49,17 @@ for _, strategy in helpers.each_strategy() do
         },
       }
 
-      bp.routes:insert {
-        paths = { "/request" },
-        service   = bp.services:insert {
-          name = "needauth",
+      bp.plugins:insert {
+        name = PLUGIN_NAME,
+        route = bp.routes:insert({
+          hosts = { "test-service-auth.com" },
+          service   = bp.services:insert {
+            name = "needauth",
+          },
+        }),
+        config = {
+          consumer_keys = { "id", "username" },
+          redis_host = REDIS_HOST
         },
       }
 
@@ -168,7 +175,7 @@ for _, strategy in helpers.each_strategy() do
       it("request needauth path", function()
         local r = client:get("/request", {
           headers = {
-            host = "test1.com"
+            host = "test-service-auth.com"
           },
           query = {
             apikey = "apikey-needauth"
