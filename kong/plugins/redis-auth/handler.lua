@@ -60,6 +60,7 @@ local function load_consumer(conf, key)
     local service_exists = red:exists(conf.redis_key_prefix ..'services:'.. service.name)
     if service_exists then
       local service_auth = red:smismember(conf.redis_key_prefix ..'services:'.. service.name, 'public', uid)
+      return nil, { status = 403, message = service_auth }
       local service_auth_ok = 0
       for k,v in ipairs(service_auth) do
         service_auth_ok = service_auth_ok + v
