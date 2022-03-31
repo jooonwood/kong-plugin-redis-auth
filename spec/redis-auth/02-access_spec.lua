@@ -17,7 +17,7 @@ end
 
 local function add_redis_data(red)
   assert(red:sadd("redis-auth:services:needauth", "notpublic"))
-  assert(red:zass("redis-auth:sessions", 1, "apikey-needauth"))
+  assert(red:zadd("redis-auth:sessions", 1, "apikey-needauth"))
   assert(red:set("redis-auth:users:1", 1, '{ "id":1 ,"username":"hello"  }'))
 end
 
