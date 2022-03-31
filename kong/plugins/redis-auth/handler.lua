@@ -60,7 +60,7 @@ local function load_consumer(conf, key)
     local service_exists = red:exists(conf.redis_key_prefix ..'services:'.. service.name)
     if service_exists then
       local service_auth_everyone, service_auth_user = red:smismember(conf.redis_key_prefix ..'services:'.. service.name, 'public', uid)
-      if ngx.null == service_auth_everyone and ngx.null == service_auth_user then
+      if 0 == service_auth_everyone and 0 == service_auth_user then
         return nil, { status = 403, message = "access failed" }
       end
     end
