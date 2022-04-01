@@ -20,7 +20,7 @@ local function add_redis_data(red)
   assert(red:zadd("redis-auth:sessions", 1, "apikey-needauth-1"))
   assert(red:zadd("redis-auth:sessions", 2, "apikey-needauth-2"))
   assert(red:set("redis-auth:users:1", '{ "id":1 ,"username":"user1"  }'))
-  assert(red:set("redis-auth:users:1", '{ "id":2 ,"username":"user2"  }'))
+  assert(red:set("redis-auth:users:2", '{ "id":2 ,"username":"user2"  }'))
 end
 
 for _, strategy in helpers.each_strategy() do
