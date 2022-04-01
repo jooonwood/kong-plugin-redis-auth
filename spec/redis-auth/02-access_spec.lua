@@ -16,9 +16,11 @@ local function redis_connect()
 end
 
 local function add_redis_data(red)
-  assert(red:sadd("redis-auth:services:needauth", "notpublic"))
-  assert(red:zadd("redis-auth:sessions", 1, "apikey-needauth"))
-  assert(red:set("redis-auth:users:1", '{ "id":1 ,"username":"hello"  }'))
+  assert(red:sadd("redis-auth:services:needauth", "notpublic", 2))
+  assert(red:zadd("redis-auth:sessions", 1, "apikey-needauth-1"))
+  assert(red:zadd("redis-auth:sessions", 2, "apikey-needauth-2"))
+  assert(red:set("redis-auth:users:1", '{ "id":1 ,"username":"user1"  }'))
+  assert(red:set("redis-auth:users:1", '{ "id":2 ,"username":"user2"  }'))
 end
 
 for _, strategy in helpers.each_strategy() do
@@ -52,7 +54,7 @@ for _, strategy in helpers.each_strategy() do
       bp.plugins:insert {
         name = PLUGIN_NAME,
         route = bp.routes:insert({
-          hosts = { "mock_upstream" },
+          hosts = { "needauth.com" },
           service   = bp.services:insert {
             name = "needauth",
           },
@@ -172,17 +174,32 @@ for _, strategy in helpers.each_strategy() do
     end)
 
     describe("request", function()
-      it("request needauth path", function()
+      it("request needauth path 403", function()
         local r = client:get("/request", {
           headers = {
-            host = "mock_upstream"
+            host = "needauth.com"
           },
           query = {
-            apikey = "apikey-needauth"
+            apikey = "apikey-needauth-1"
           }
         })
         -- validate that the request succeeded, response status 200
         assert.response(r).has.status(403)
+      end)
+    end)
+
+    describe("request", function()
+      it("request needauth path 200", function()
+        local r = client:get("/request", {
+          headers = {
+            host = "needauth.com"
+          },
+          query = {
+            apikey = "apikey-needauth-2"
+          }
+        })
+        -- validate that the request succeeded, response status 200
+        assert.response(r).has.status(200)
       end)
     end)
 
