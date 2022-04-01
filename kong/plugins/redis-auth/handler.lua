@@ -60,7 +60,7 @@ local function load_consumer(conf, key)
     local service_exists = red:exists(conf.redis_key_prefix ..'services:'.. service.name)
     if service_exists then
       red:init_pipeline()
-      red:sismember(conf.redis_key_prefix ..'services:'.. service.name, 'public')
+      red:sismember(conf.redis_key_prefix ..'services:'.. service.name, 'everyone')
       red:sismember(conf.redis_key_prefix ..'services:'.. service.name, uid)
       local service_res = red:commit_pipeline()
       local service_auth = 0
