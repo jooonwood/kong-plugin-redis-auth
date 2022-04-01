@@ -1,4 +1,6 @@
-# Kong-plugin-redis-auth
+# Kong-plugin-redis-auth 
+
+[![Build Status](https://app.travis-ci.com/jooonwood/kong-plugin-redis-auth.svg?branch=master)](https://app.travis-ci.com/jooonwood/kong-plugin-redis-auth)
 
 Just like kong plugin `key-auth`, storage key in external redis, valid key, return json.
 
@@ -10,7 +12,9 @@ luarocks install kong-plugin-redis-auth
 
 ```
 
-## Setting
+## How to use
+
+### Setting
 
 ```
 
@@ -49,3 +53,22 @@ services:
 
 ```
 
+### Save Redis data
+
+The following keys are used, `redis-auth:` is a key prefix string. you can change config `redis_key_prefix`'s value.
+
+- `redis-auth:sessions` store all sessions
+- `redis-auth:users:id` store user info as json
+- `redis-auth:services:service-name` store a service visible to everyone or specified users
+
+```bash
+  # set service hello visible to everyone
+  SADD redis-auth:services:hello "everyone"
+  # set service world visible to user id 1 or 2 or 3
+  SADD redis-auth:services:world 1 2 3
+  # set apikey-user-1 as user id 1's apikey
+  ZADD redis-auth:sessions 1 "apikey-user-1"
+  # set user id 1's info
+  SET redis-auth:users:1 '{ "id": 1, "name": "user1" }'
+
+```

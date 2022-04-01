@@ -55,6 +55,25 @@ local function load_consumer(conf, key)
     return nil, { status = 401, message = "not found user" }
   end
 
+  local service = kong.router.get_service()
+  if service and service.name then
+    local service_exists = red:exists(conf.redis_key_prefix ..'services:'.. service.name)
+    if service_exists then
+      red:init_pipeline()
+      red:sismember(conf.redis_key_prefix ..'services:'.. service.name, 'everyone')
+      red:sismember(conf.redis_key_prefix ..'services:'.. service.name, uid)
+      local service_res = red:commit_pipeline()
+      local service_auth = 0
+      for k, v in ipairs(service_res) do
+        service_auth = service_auth + v
+      end
+      if service_auth == 0 then
+        red:set_keepalive(conf.redis_timeout, conf.redis_pool)
+        return nil, { status = 403, message = "access failed" }
+      end
+    end
+  end
+
   red:set_keepalive(conf.redis_timeout, conf.redis_pool)
   return user
 
