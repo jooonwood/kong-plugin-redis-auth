@@ -58,9 +58,9 @@ local function load_consumer(conf, key)
   local service = kong.router.get_service()
   if service and service.name then
     local service_exists = red:exists(conf.redis_key_prefix ..'services:'.. service.name)
-    if service_exists then
+    if service_exists == 1 then
       red:init_pipeline()
-      red:sismember(conf.redis_key_prefix ..'services:'.. service.name, 'everyone')
+      red:sismember(conf.redis_key_prefix ..'services:'.. service.name, 'internal')
       red:sismember(conf.redis_key_prefix ..'services:'.. service.name, uid)
       local service_res = red:commit_pipeline()
       local service_auth = 0

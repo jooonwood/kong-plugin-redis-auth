@@ -59,11 +59,11 @@ The following keys are used, `redis-auth:` is a key prefix string. you can chang
 
 - `redis-auth:sessions` store all sessions
 - `redis-auth:users:id` store user info as json
-- `redis-auth:services:service-name` store a service visible to everyone or specified users
+- `redis-auth:services:service-name` store a service visible to internal or specified users
 
 ```bash
-  # set service hello visible to everyone
-  SADD redis-auth:services:hello "everyone"
+  # set service hello visible to internal
+  SADD redis-auth:services:hello "internal"
   # set service world visible to user id 1 or 2 or 3
   SADD redis-auth:services:world 1 2 3
   # set apikey-user-1 as user id 1's apikey
